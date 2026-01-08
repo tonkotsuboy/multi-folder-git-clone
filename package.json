@@ -1,8 +1,8 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "git-clone-helper",
-  "title": "Git Clone Helper",
-  "description": "Clone GitHub repositories with automatic numbering for duplicates",
+  "name": "multi-folder-git-clone",
+  "title": "Multi-Folder Git Clone",
+  "description": "Clone the same repository to multiple folders with automatic numbering",
   "icon": "extension-icon.png",
   "author": "tonkotsuboy",
   "platforms": [
