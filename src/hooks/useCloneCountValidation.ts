@@ -1,11 +1,5 @@
 import { useState, useCallback } from 'react';
 
-type ValidationResult = {
-  value: string;
-  error: string | undefined;
-  isValid: boolean;
-};
-
 export function useCloneCountValidation(initialValue = '1') {
   const [cloneCount, setCloneCount] = useState(initialValue);
   const [cloneCountError, setCloneCountError] = useState<string | undefined>();
