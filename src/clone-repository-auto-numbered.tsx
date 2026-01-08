@@ -7,151 +7,43 @@ import {
   getPreferenceValues,
   popToRoot,
 } from '@raycast/api';
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
-import fs from 'fs/promises';
+import type { Preferences, FormValues } from './types';
+import {
+  parseRepositoryUrl,
+  resolveClonePaths,
+  cloneRepositories,
+  ensureParentDirectory,
+} from './lib/clone-helper';
+import { useCloneCountValidation } from './hooks/useCloneCountValidation';
+import { useClonePreview } from './hooks/useClonePreview';
 
 const execAsync = promisify(exec);
-
-type Preferences = {
-  cloneBasePath: string;
-  useOrgDirectory: boolean;
-  numberingSeparator: string;
-};
-
-type FormValues = {
-  repositoryUrl: string;
-  cloneCount: string;
-};
 
 export default function Command() {
   const [isLoading, setIsLoading] = useState(false);
   const [repositoryUrl, setRepositoryUrl] = useState('');
-  const [cloneCount, setCloneCount] = useState('1');
-  const [cloneCountError, setCloneCountError] = useState<string | undefined>();
-  const [previewPaths, setPreviewPaths] = useState<string[]>([]);
   const preferences = getPreferenceValues<Preferences>();
 
-  const basePath = preferences.cloneBasePath.replace(/^~/, process.env.HOME ?? '');
-  const examplePath = preferences.useOrgDirectory ? `${basePath}/org/repo` : `${basePath}/repo`;
+  const basePath = useMemo(
+    () => preferences.cloneBasePath.replace(/^~/, process.env.HOME ?? ''),
+    [preferences.cloneBasePath]
+  );
 
-  // Handle clone count input (numbers only)
-  const handleCloneCountChange = (value: string) => {
-    // Allow empty string
-    if (value === '') {
-      setCloneCount('');
-      setCloneCountError(undefined);
-      return;
-    }
+  const examplePath = useMemo(
+    () => (preferences.useOrgDirectory ? `${basePath}/org/repo` : `${basePath}/repo`),
+    [basePath, preferences.useOrgDirectory]
+  );
 
-    // Allow only digits
-    if (!/^\d+$/.test(value)) {
-      setCloneCountError('Please enter a number');
-      return;
-    }
+  const { cloneCount, cloneCountError, handleCloneCountChange, parsedCount } =
+    useCloneCountValidation('1');
 
-    const num = parseInt(value, 10);
-    if (num < 1 || num > 10) {
-      setCloneCountError('Clone count must be between 1 and 10');
-    } else {
-      setCloneCountError(undefined);
-    }
+  const previewPaths = useClonePreview(repositoryUrl, parsedCount, preferences, basePath);
 
-    setCloneCount(value);
-  };
-
-  // Generate preview paths (async to check existing directories)
-  useEffect(() => {
-    const updatePreviewPaths = async () => {
-      if (!repositoryUrl) {
-        setPreviewPaths([]);
-        return;
-      }
-
-      const match = repositoryUrl.match(/^(?:https?:\/\/github\.com\/)?([^/]+)\/([^/]+?)(?:\.git)?$/);
-      if (!match) {
-        setPreviewPaths([]);
-        return;
-      }
-
-      const [, org, repo] = match;
-      const separator = preferences.numberingSeparator ?? '-';
-      const count = parseInt(cloneCount, 10);
-
-      if (isNaN(count) || count < 1 || count > 10) {
-        setPreviewPaths([]);
-        return;
-      }
-
-      let targetPath: string;
-
-      if (preferences.useOrgDirectory) {
-        targetPath = path.join(basePath, org, repo);
-      } else {
-        targetPath = path.join(basePath, repo);
-      }
-
-      // Determine actual clone paths (same logic as handleSubmit)
-      const paths: string[] = [];
-      const usedPaths = new Set<string>();
-
-      for (let i = 0; i < count; i++) {
-        let finalPath: string;
-
-        if (i === 0) {
-          // First clone: use original path or find next available number
-          finalPath = targetPath;
-          try {
-            await fs.access(finalPath);
-            // Directory exists, find next available number
-            let counter = 2;
-            while (true) {
-              const numberedPath = `${targetPath}${separator}${counter}`;
-              try {
-                await fs.access(numberedPath);
-                counter++;
-              } catch {
-                if (!usedPaths.has(numberedPath)) {
-                  finalPath = numberedPath;
-                  break;
-                }
-                counter++;
-              }
-            }
-          } catch {
-            // Directory doesn't exist, use original path
-          }
-        } else {
-          // Subsequent clones: find next available numbered path
-          let counter = 2;
-          while (true) {
-            const numberedPath = `${targetPath}${separator}${counter}`;
-            try {
-              await fs.access(numberedPath);
-              counter++;
-            } catch {
-              if (!usedPaths.has(numberedPath)) {
-                finalPath = numberedPath;
-                break;
-              }
-              counter++;
-            }
-          }
-        }
-
-        paths.push(finalPath);
-        usedPaths.add(finalPath);
-      }
-
-      setPreviewPaths(paths);
-    };
-
-    updatePreviewPaths();
-  }, [repositoryUrl, cloneCount, basePath, preferences.useOrgDirectory, preferences.numberingSeparator]);
-
-  async function handleSubmit(values: FormValues) {
+  const handleSubmit = useCallback(async (values: FormValues) => {
     const { repositoryUrl, cloneCount: cloneCountStr } = values;
 
     if (!repositoryUrl) {
@@ -176,84 +68,18 @@ export default function Command() {
     setIsLoading(true);
 
     try {
-      // Extract org/repo from URL or use direct format
-      const match = repositoryUrl.match(
-        /^(?:https?:\/\/github\.com\/)?([^/]+)\/([^/]+?)(?:\.git)?$/
-      );
-
-      if (!match) {
+      const parsed = parseRepositoryUrl(repositoryUrl);
+      if (!parsed) {
         throw new Error("Invalid repository format. Use 'org/repo' or full GitHub URL");
       }
 
-      const [, org, repo] = match;
-      const separator = preferences.numberingSeparator ?? '-';
-
-      // Determine base paths
-      let targetPath: string;
-      let parentPath: string;
-
-      if (preferences.useOrgDirectory) {
-        parentPath = path.join(basePath, org);
-        targetPath = path.join(parentPath, repo);
-      } else {
-        parentPath = basePath;
-        targetPath = path.join(basePath, repo);
-      }
+      const { org, repo } = parsed;
 
       // Create parent directory
-      await fs.mkdir(parentPath, { recursive: true });
+      await ensureParentDirectory(org, preferences, basePath);
 
-      // Pre-determine all clone paths (sequential to avoid race conditions)
-      const clonePaths: string[] = [];
-      const usedPaths = new Set<string>();
-
-      for (let i = 0; i < count; i++) {
-        let finalPath: string;
-
-        if (i === 0) {
-          // First clone: use original path or find next available number
-          finalPath = targetPath;
-          try {
-            await fs.access(finalPath);
-            // Directory exists, find next available number
-            let counter = 2;
-            while (true) {
-              const numberedPath = `${targetPath}${separator}${counter}`;
-              try {
-                await fs.access(numberedPath);
-                counter++;
-              } catch {
-                if (!usedPaths.has(numberedPath)) {
-                  finalPath = numberedPath;
-                  break;
-                }
-                counter++;
-              }
-            }
-          } catch {
-            // Directory doesn't exist, use original path
-          }
-        } else {
-          // Subsequent clones: find next available numbered path
-          let counter = 2;
-          while (true) {
-            const numberedPath = `${targetPath}${separator}${counter}`;
-            try {
-              await fs.access(numberedPath);
-              counter++;
-            } catch {
-              if (!usedPaths.has(numberedPath)) {
-                finalPath = numberedPath;
-                break;
-              }
-              counter++;
-            }
-          }
-        }
-
-        clonePaths.push(finalPath);
-        usedPaths.add(finalPath);
-      }
+      // Resolve all clone paths
+      const clonePaths = await resolveClonePaths(org, repo, count, preferences, basePath);
 
       // Show initial toast
       const progressToast = await showToast({
@@ -263,17 +89,7 @@ export default function Command() {
       });
 
       // Clone repositories in parallel
-      const clonePromises = clonePaths.map(async (finalPath, index) => {
-        try {
-          await execAsync(`git clone https://github.com/${org}/${repo} "${finalPath}"`);
-          return { path: finalPath, success: true, index };
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          return { path: finalPath, success: false, error: errorMessage, index };
-        }
-      });
-
-      const results = await Promise.all(clonePromises);
+      const results = await cloneRepositories(org, repo, clonePaths);
 
       // Show final summary
       const successCount = results.filter((r) => r.success).length;
@@ -320,7 +136,7 @@ export default function Command() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [preferences, basePath]);
 
   return (
     <Form
