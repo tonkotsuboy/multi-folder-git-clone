@@ -146,7 +146,7 @@ export default function Command() {
           <Action.SubmitForm onSubmit={handleSubmit} title="Clone Repository" />
           <Action.OpenInBrowser
             title="Open Extension Settings"
-            url="raycast://extensions/tonkotsuboy/git-clone-helper"
+            url="raycast://extensions/tonkotsuboy/multi-folder-git-clone"
             shortcut={{ modifiers: ['cmd'], key: ',' }}
           />
         </ActionPanel>
