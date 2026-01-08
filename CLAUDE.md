@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Raycast Extension that clones GitHub repositories with automatic numbering for duplicate clones. Supports parallel cloning of multiple copies with configurable directory structure and numbering separators.
+A Raycast Extension that clones the same repository to multiple folders with automatic numbering. Supports parallel cloning with configurable directory structure and numbering separators.
 
 ## Development Commands
 
