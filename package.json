@@ -16,8 +16,8 @@
   "commands": [
     {
       "name": "clone-repository-auto-numbered",
-      "title": "Clone Repository (Auto-Numbered)",
-      "description": "Automatically numbers duplicate clones",
+      "title": "Multi-Folder Git Clone",
+      "description": "Clone the same repository to multiple folders",
       "mode": "view"
     }
   ],
