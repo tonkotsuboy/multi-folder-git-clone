@@ -4,8 +4,7 @@
   "title": "Git Clone Helper",
   "description": "Clone GitHub repositories with automatic numbering for duplicates",
   "icon": "extension-icon.png",
-  "author": "t_kano_624",
-  "owner": "tonkotsuboy",
+  "author": "tonkotsuboy",
   "platforms": [
     "macOS",
     "Windows"
@@ -17,9 +16,51 @@
   "commands": [
     {
       "name": "clone-repository-auto-numbered",
-      "title": "Clone Repository (Auto-numbered)",
+      "title": "Clone Repository (Auto-Numbered)",
       "description": "Automatically numbers duplicate clones",
       "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "cloneBasePath",
+      "type": "textfield",
+      "required": false,
+      "title": "Clone Base Path",
+      "description": "Base directory for cloning repositories",
+      "default": "~/git/github.com",
+      "placeholder": "~/git/github.com"
+    },
+    {
+      "name": "useOrgDirectory",
+      "type": "checkbox",
+      "required": false,
+      "title": "Use Organization Directory",
+      "description": "Create org/repo structure (e.g., ~/git/github.com/org/repo)",
+      "default": true,
+      "label": "Create organization subdirectories"
+    },
+    {
+      "name": "numberingSeparator",
+      "type": "dropdown",
+      "required": false,
+      "title": "Numbering Separator",
+      "description": "Separator for duplicate numbering",
+      "default": "-",
+      "data": [
+        {
+          "title": "Hyphen (repo-2)",
+          "value": "-"
+        },
+        {
+          "title": "Underscore (repo_2)",
+          "value": "_"
+        },
+        {
+          "title": "Dot (repo.2)",
+          "value": "."
+        }
+      ]
     }
   ],
   "dependencies": {
