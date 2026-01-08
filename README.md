@@ -1,10 +1,10 @@
-# Git Clone Helper
+# Multi-Folder Git Clone
 
-A Raycast extension for cloning GitHub repositories with automatic numbering and parallel execution support.
+A Raycast extension for cloning the same repository to multiple folders with automatic numbering and parallel execution support.
 
 ## Purpose
 
-This extension simplifies the workflow of creating multiple clones of the same repository, particularly useful when working with AI coding assistants like Claude Code that benefit from parallel workspaces.
+This extension simplifies the workflow of creating multiple clones of the same repository to different folders, particularly useful when working with AI coding assistants like Claude Code that benefit from parallel workspaces.
 
 ## Key Features
 
