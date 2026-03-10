@@ -3,7 +3,7 @@
   "name": "multi-folder-git-clone",
   "title": "Multi-Folder Git Clone",
   "description": "Clone the same repository to multiple folders with automatic numbering",
-  "icon": "extension-icon.png",
+  "icon": "extension-icon.svg",
   "author": "tonkotsuboy",
   "platforms": [
     "macOS",
