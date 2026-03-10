@@ -15,7 +15,7 @@
   "license": "MIT",
   "commands": [
     {
-      "name": "clone-repository-auto-numbered",
+      "name": "multi-folder-git-clone",
       "title": "Multi-Folder Git Clone",
       "description": "Clone the same repository to multiple folders",
       "mode": "view"

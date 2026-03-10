@@ -34,7 +34,7 @@ This extension is designed for personal use. To install:
 
 ## Usage
 
-1. Open Raycast and search for "Clone Repository (Auto-Numbered)"
+1. Open Raycast and search for "Multi-Folder Git Clone"
 2. Enter the repository URL (supports both `org/repo` and full GitHub URLs)
 3. Specify how many clones you want to create (1-10)
 4. Review the preview of clone paths

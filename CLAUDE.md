@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Raycast Extension that clones the same repository to multiple folders with automatic numbering. Supports parallel cloning with configurable directory structure and numbering separators.
+Multi-Folder Git Clone is a Raycast Extension that clones the same repository to multiple folders with automatic numbering. Supports parallel cloning with configurable directory structure and numbering separators.
 
 ## Development Commands
 
@@ -29,7 +29,7 @@ npm run publish
 
 ### Core Logic
 
-`src/clone-repository-auto-numbered.tsx` is the single entry point with three main responsibilities:
+`src/multi-folder-git-clone.tsx` is the single entry point with three main responsibilities:
 
 1. **Path Resolution Logic** (lines 66-152, 154-256)
    - Constructs paths as `basePath/org/repo` or `basePath/repo` based on `useOrgDirectory` preference

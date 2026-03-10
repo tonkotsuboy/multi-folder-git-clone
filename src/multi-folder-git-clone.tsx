@@ -143,7 +143,7 @@ export default function Command() {
       isLoading={isLoading}
       actions={
         <ActionPanel>
-          <Action.SubmitForm onSubmit={handleSubmit} title="Clone Repository" />
+          <Action.SubmitForm onSubmit={handleSubmit} title="Multi-Folder Git Clone" />
           <Action.OpenInBrowser
             title="Open Extension Settings"
             url="raycast://extensions/tonkotsuboy/multi-folder-git-clone"
