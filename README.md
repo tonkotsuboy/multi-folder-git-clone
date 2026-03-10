@@ -1,101 +1,53 @@
 # Multi-Folder Git Clone
 
-A Raycast extension for cloning the same repository to multiple folders with automatic numbering and parallel execution support.
+<p align="center">
+  <img src="assets/extension-icon.svg" width="128" height="128" />
+</p>
 
-## Purpose
+同じリポジトリを、自動で連番を振りながら複数のフォルダに一括でクローンするための Raycast 拡張機能です。
 
-This extension simplifies the workflow of creating multiple clones of the same repository to different folders, particularly useful when working with AI coding assistants like Claude Code that benefit from parallel workspaces.
+## モチベーション
 
-## Key Features
+- **AIエージェント時代への対応**: 一つのリポジトリに対して、並行して複数のAIエージェント（Clineなど）に作業を依頼したい。
+- **マルチクローン派**: `git worktree` よりも、完全に独立した複数のクローンを持ちたい。
+- **ghqライクな管理**: `org/リポジトリ名` の構造で整然と管理したい。
+- **高速な移動**: `peco` などのツールと組み合わせて、`g` キーだけで複数のリポジトリ間を爆速で行き来したい。
+- **脱ターミナル**: ターミナルを開くことなく、キーボードショートカットから一瞬でクローンを完了させたい。
 
-- **Automatic Numbering**: Automatically numbers duplicate clones (e.g., `repo`, `repo-2`, `repo-3`)
-- **Parallel Execution**: Clone multiple repositories simultaneously for faster setup
-- **Smart Path Detection**: Intelligently finds the next available number based on existing directories
-- **Real-time Preview**: Shows exact clone paths before execution
-- **Flexible Organization**: Optional organization-based directory structure (`org/repo`)
-- **Customizable Separators**: Choose between hyphen, underscore, or dot for numbering
+そんな欲望を叶えるために作成しました😊
 
-## Use Cases
+## 特徴
 
-- **Parallel Development**: Work on multiple feature branches simultaneously in separate directories
-- **AI-Assisted Coding**: Create isolated workspaces for parallel Claude Code sessions
-- **Testing**: Quickly set up multiple clean copies for testing different configurations
-- **Code Review**: Clone the same repository multiple times to review different PRs side-by-side
+1. **URLとクローン数を指定するだけ**: クローンしたいリポジトリのURLを入力し、クローン数を指定するだけで完了します。
+2. **自動採番**: 指定したフォルダに `-2`, `-3` ... と自動で採番してクローンしてくれます。
+3. **ghq管理下へのクローン**: クローン先を ghq のパス（例: `~/git/github.com`）に設定すれば、そのまま `peco` などの既存ワークフローに組み込めます。
 
-## Installation
+## 使い方
 
-This extension is designed for personal use. To install:
+### 1. リポジトリURLとクローン数を指定
+Raycast でコマンドを起動し、URLと必要なクローン数を入力します。
 
-1. Clone this repository
-2. Navigate to the extension directory
-3. Run `npm install`
-4. Run `npm run dev` to start development mode
-5. The extension will appear in Raycast
+![実行画面](assets/screenshot-command.png)
 
-## Usage
+### 2. 指定フォルダに自動採番してクローン
+Finderで見ると、このように連番付きのフォルダが自動で作成されています。
 
-1. Open Raycast and search for "Multi-Folder Git Clone"
-2. Enter the repository URL (supports both `org/repo` and full GitHub URLs)
-3. Specify how many clones you want to create (1-10)
-4. Review the preview of clone paths
-5. Press Enter to execute parallel cloning
+![Finderでの表示](assets/screenshot-finder.png)
 
-## Configuration
+### 3. peco 等で爆速移動
+`ghq` 管理下にクローンすれば、ターミナルから `g` コマンド（peco連携）などで一瞬で目的のフォルダに移動できます。
 
-Access settings via `Cmd + ,` in the extension or through Raycast preferences:
+![ターミナルでの移動](assets/screenshot-terminal.png)
 
-- **Clone Base Path**: Base directory for cloning repositories (default: `~/git/github.com`)
-- **Use Organization Directory**: Create `org/repo` structure or flat `repo` structure
-- **Numbering Separator**: Choose separator for duplicate numbering (`-`, `_`, or `.`)
+## 設定
 
-## Examples
+クローン先のベースパスや、組織名のディレクトリを作成するかどうか、採番時のセパレーター（`-`, `_`, `.`）などをカスタマイズ可能です。
 
-### Scenario 1: First Clone
-- Input: `facebook/react`
-- Clone Count: 1
-- Result: `~/git/github.com/facebook/react`
+![設定画面](assets/screenshot-pref.png)
 
-### Scenario 2: Multiple Clones (No Existing Directory)
-- Input: `microsoft/vscode`
-- Clone Count: 3
-- Result:
-  - `~/git/github.com/microsoft/vscode`
-  - `~/git/github.com/microsoft/vscode-2`
-  - `~/git/github.com/microsoft/vscode-3`
-
-### Scenario 3: Multiple Clones (With Existing Directories)
-- Existing: `~/git/github.com/vercel/next.js`, `~/git/github.com/vercel/next.js-2`
-- Input: `vercel/next.js`
-- Clone Count: 3
-- Result:
-  - `~/git/github.com/vercel/next.js-3`
-  - `~/git/github.com/vercel/next.js-4`
-  - `~/git/github.com/vercel/next.js-5`
-
-## Technical Details
-
-- **Runtime**: Node.js with TypeScript
-- **UI Framework**: React with Raycast API
-- **Execution**: Parallel cloning using Promise.all
-- **Platform**: macOS, Windows
-
-## Development
+## インストール
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
-
-# Build for production
-npm run build
-
-# Lint and format
-npm run lint
-npm run fix
 ```
-
-## License
-
-MIT
